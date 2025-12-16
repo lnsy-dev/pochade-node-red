@@ -1,0 +1,35 @@
+{
+  "name": "pochade-js",
+  "version": "0.7.2",
+  "description": "npx starter template for Pochade-JS projects",
+  "bin": {
+    "create-pochade-js": "./bin/create-pochade-js.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/lnsy-dev/pochade-js.git"
+  },
+  "keywords": [
+    "pochade",
+    "template",
+    "starter",
+    "vanilla-js",
+    "rspack",
+    "dataroom-js",
+    "custom-elements"
+  ],
+  "author": "LNSY",
+  "license": "Unlicense",
+  "bugs": {
+    "url": "https://github.com/lnsy-dev/pochade-js/issues"
+  },
+  "homepage": "https://github.com/lnsy-dev/pochade-js#readme",
+
+  "dependencies": {
+    "cross-spawn": "^7.0.6"
+  },
+  "files": [
+    "bin/",
+    "template/"
+  ]
+}
