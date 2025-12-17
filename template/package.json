@@ -1,53 +1,24 @@
 {
-  "name": "",
+  "name": "node-red-contrib-boilerplate",
   "version": "0.1.0",
-  "description": "A vanilla JS, CSS and HTML boilerplate with Web Workers and Custom HTML Elements using dataroom-js",
-  "main": "dist/main.min.js",
-  "type": "module",
-  "author": "Lindsey Mysse <lindsey@example.com>",
-  "license": "Unlicense",
+  "description": "${project_description}",
   "keywords": [
-    "web-workers",
-    "custom-elements",
-    "vanilla-js",
-    "dataroom-js",
-    "rspack",
-    "boilerplate"
+    "node-red"
   ],
-  "repository": {
-    "type": "git",
-    "url": "https://github.com/lindseymysse/test-web-worker-2.git"
+  "author": "",
+  "license": "ISC",
+  "node-red": {
+    "nodes": {
+      "${node_name}": "src/${node_name}.js"
+    }
   },
-  "bugs": {
-    "url": "https://github.com/lindseymysse/test-web-worker-2/issues"
-  },
-  "homepage": "https://github.com/lindseymysse/test-web-worker-2#readme",
-  "files": [
-    "dist/",
-    "src/",
-    "styles/",
-    "index.js",
-    "index.css",
-    "index.html"
-  ],
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "start": "rspack serve",
-    "build": "NODE_ENV=production rspack build",
-    "prepublishOnly": "npm run build"
-  },
-  "dependencies": {
-    "dataroom-js": "^0.8.0"
+    "install-plugin": "SRC=$PWD && echo \"Installing from $SRC\" && test -d $HOME/.node-red && (cd $HOME/.node-red && npm install $SRC) || (echo 'Error: $HOME/.node-red not found. Please initialize Node-RED first.' && exit 1)",
+    "watch": "nodemon -e js,html --exec \"npm run install-plugin && npm run restart-node-red\"",
+    "restart-node-red": "pkill -f 'node-red -u' || true && node-red -u $HOME/.node-red"
   },
   "devDependencies": {
-    "@rspack/cli": "^1.5.6",
-    "@rspack/core": "^1.5.6",
-    "@rspack/dev-server": "^1.1.4",
-    "css-loader": "^7.1.2",
-    "cssnano": "^7.1.2",
-    "dotenv": "^17.2.2",
-    "postcss": "^8.5.6",
-    "postcss-loader": "^8.2.0",
-    "style-loader": "^4.0.0"
+    "nodemon": "^2.0.22"
   }
 }

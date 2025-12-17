@@ -3,7 +3,7 @@
 /**
  * create-pochade-js
  * 
- * Creates a new Pochade-JS project from the template.
+ * Creates a new Pochade-JS Node-RED project from the template.
  * 
  * Usage: npx create-pochade-js my-app
  * 
@@ -37,15 +37,63 @@ function createReadlineInterface() {
  */
 function ask(rl, question, defaultValue = '') {
   return new Promise((resolve) => {
-    const prompt = defaultValue 
+    const prompt = defaultValue
       ? `${question} (${defaultValue}): `
       : `${question}: `;
-    
+
     rl.question(prompt, (answer) => {
       resolve(answer.trim() || defaultValue);
     });
   });
 }
+
+/**
+ * Prompts the user with a question and validates the answer
+ * 
+ * @param {readline.Interface} rl - The readline interface
+ * @param {string} question - The question to ask
+ * @param {function} validator - Function that returns true if valid, or a string error message
+ * @param {string} defaultValue - Optional default value
+ * @returns {Promise<string>} The user's answer
+ */
+async function askWithValidation(rl, question, validator, defaultValue = '') {
+  while (true) {
+    const answer = await ask(rl, question, defaultValue);
+    const validation = validator(answer);
+    if (validation === true) {
+      return answer;
+    }
+    console.log(`❌ ${validation}`);
+  }
+}
+
+/**
+ * Validates a package/project name (URL-friendly, no spaces)
+ * @param {string} name 
+ * @returns {boolean|string}
+ */
+function validatePackageName(name) {
+  if (!name) return "Name cannot be empty";
+  if (!/^[a-z0-9-_]+$/.test(name)) {
+    return "Name must only contain lowercase letters, numbers, hyphens, and underscores";
+  }
+  return true;
+}
+
+/**
+ * Validates a node name (safe for filenames)
+ * @param {string} name 
+ * @returns {boolean|string}
+ */
+function validateNodeName(name) {
+  if (!name) return "Name cannot be empty";
+  if (!/^[a-z0-9-]+$/.test(name)) {
+    return "Name must only contain lowercase letters, numbers, and hyphens";
+  }
+  return true;
+}
+
+
 
 /**
  * Collects project configuration from user input
@@ -55,34 +103,34 @@ function ask(rl, question, defaultValue = '') {
  */
 async function collectProjectInfo(projectName) {
   const rl = createReadlineInterface();
-  
-  const logo = ".-. .-. .-. . . .-. .-. .-.   . .-.\r\n|-\' | | |   |-| |-| |  )|-    | `-.\r\n\'   `-\' `-\' \' ` ` \' `-\' `-\' `-\' `-\'\r\n       Write JS with Passion\r\n             By LNSY\r\n"
+
+  const logo = ".-. .-. .-. . . .-. .-. .-.   . .-.\r\n|-\' | | |   |-| |-| |  )|-    | `-.\r\n\'   `-\' `-\' \' ` ` \' `-\' `-\' `-\' `-\'\r\n       Node-RED Plugins with Passion\r\n             By LNSY\r\n"
   console.log(logo);
 
+  console.log('\n📝 Let\'s set up your Node-RED Plugin project!\n');
 
-  console.log('\n📝 Let\'s set up your Pochade-JS project!\n');
-  
+  // Default node name derived from project name
+  const defaultNodeName = projectName.replace(/^node-red-contrib-/, '');
+
   const config = {
     project_name: projectName,
-    project_title: await ask(rl, 'Project title', projectName),
-    project_description: await ask(rl, 'Project description', 'A vanilla JS, CSS and HTML project'),
-    project_url: await ask(rl, 'Project URL (where it will be hosted)', ''),
-    project_image_url: await ask(rl, 'Project image URL (for social sharing)', ''),
-    project_alt_text: await ask(rl, 'Project image alt text', ''),
-    project_sitename: await ask(rl, 'Project site name', projectName),
+    project_description: await ask(rl, 'Project description', 'A Node-RED node'),
+    node_sidebar_title: await ask(rl, 'Sidebar title (category)', 'function'),
+    node_name: await askWithValidation(rl, 'Node name', validateNodeName, defaultNodeName),
+    node_purpose: await ask(rl, 'Node purpose', 'Processes messages'),
     author_name: await ask(rl, 'Author name', ''),
-    author_email: await ask(rl, 'Author email', ''),
-    github_username: await ask(rl, 'GitHub username', ''),
-    license: await ask(rl, 'License', 'Unlicense')
+    license: await ask(rl, 'License', 'MIT')
   };
-  
+
+
+
   rl.close();
-  
+
   return config;
 }
 
 /**
- * Replaces template variables in a string with actual values
+ * Replaces template variables in a file content
  * 
  * @param {string} content - The content with template variables
  * @param {object} config - Configuration object with values
@@ -90,28 +138,37 @@ async function collectProjectInfo(projectName) {
  */
 function replaceTemplateVariables(content, config) {
   return content
-    .replace(/\$\{project_title\}/g, config.project_title)
-    .replace(/\$\{project_description\}/g, config.project_description)
-    .replace(/\$\{project_url\}/g, config.project_url)
-    .replace(/\$\{project_image_url\}/g, config.project_image_url)
-    .replace(/\$\{project_alt_text\}/g, config.project_alt_text)
-    .replace(/\$\{project_sitename\}/g, config.project_sitename);
+    .replace(/\$\{\s*project_description\s*\}/g, config.project_description)
+    .replace(/\$\{\s*node_sidebar_title\s*\}/g, config.node_sidebar_title)
+    .replace(/\$\{\s*node_name\s*\}/g, config.node_name)
+    .replace(/\$\{\s*node_purpose\s*\}/g, config.node_purpose);
 }
 
 /**
- * Updates the index.html file with project-specific values
+ * Recursively updates files in the project directory
  * 
- * @param {string} projectDir - The project directory path
+ * @param {string} dir - Directory to process
  * @param {object} config - Configuration object
- * @returns {void}
  */
-function updateIndexHtml(projectDir, config) {
-  const indexPath = path.join(projectDir, 'index.html');
-  let content = fs.readFileSync(indexPath, 'utf-8');
-  content = replaceTemplateVariables(content, config);
-  fs.writeFileSync(indexPath, content, 'utf-8');
-}
+function updateFiles(dir, config) {
+  const files = fs.readdirSync(dir);
 
+  for (const file of files) {
+    const filePath = path.join(dir, file);
+    const stats = fs.statSync(filePath);
+
+    if (stats.isDirectory()) {
+      updateFiles(filePath, config);
+    } else {
+      // Only process text files
+      if (['.js', '.html', '.json', '.md'].includes(path.extname(file))) {
+        let content = fs.readFileSync(filePath, 'utf-8');
+        content = replaceTemplateVariables(content, config);
+        fs.writeFileSync(filePath, content, 'utf-8');
+      }
+    }
+  }
+}
 
 /**
  * Main function to create a new Pochade-JS project
@@ -119,49 +176,50 @@ function updateIndexHtml(projectDir, config) {
  * @returns {Promise<void>}
  */
 async function createProject() {
-  // The first argument will be the project name.
   const projectName = process.argv[2];
 
   // Validate project name
   if (!projectName) {
     console.error('Error: Please specify the project name.');
-    console.log('Usage: npx create-pochade-js <project-name>');
+    console.log('Usage: npx pochade-node-red <project-name>');
     process.exit(1);
   }
 
-  // Create a project directory with the project name.
+  const nameValidation = validatePackageName(projectName);
+  if (nameValidation !== true) {
+    console.error(`Error: Invalid project name "${projectName}".`);
+    console.error(nameValidation);
+    process.exit(1);
+  }
+
   const currentDir = process.cwd();
   const projectDir = path.resolve(currentDir, projectName);
 
-  // Check if directory already exists
   if (fs.existsSync(projectDir)) {
     console.error(`Error: Directory "${projectName}" already exists.`);
     process.exit(1);
   }
 
-  // Collect project information from user
   const config = await collectProjectInfo(projectName);
 
-  console.log(`\n🚀 Creating a new Pochade-JS project in ${projectDir}...`);
+  console.log(`\n🚀 Creating a new Node-RED node in ${projectDir}...`);
 
-  // Create the project directory
   fs.mkdirSync(projectDir, { recursive: true });
 
-  // Copy template files
   const templateDir = path.resolve(__dirname, '..', 'template');
-  
+
   if (!fs.existsSync(templateDir)) {
     console.error('Error: Template directory not found.');
     process.exit(1);
   }
 
+  // Copy template
   fs.cpSync(templateDir, projectDir, { recursive: true });
 
-  // Rename dotfiles (stored without dots in template)
+  // Rename dotfiles
   const dotfiles = [
     { from: 'gitignore', to: '.gitignore' },
-    { from: 'npmignore', to: '.npmignore' },
-    { from: 'envexample', to: '.env.example' }
+    { from: 'npmignore', to: '.npmignore' }
   ];
 
   dotfiles.forEach(({ from, to }) => {
@@ -172,49 +230,41 @@ async function createProject() {
     }
   });
 
-  // Update index.html with project-specific values
-  updateIndexHtml(projectDir, config);
+  // Rename node files
+  const srcDir = path.join(projectDir, 'src');
+  if (fs.existsSync(srcDir)) {
+    const nodeJsPath = path.join(srcDir, 'sample.js');
+    const nodeHtmlPath = path.join(srcDir, 'sample.html');
 
-  // Update package.json with the new project information
+    if (fs.existsSync(nodeJsPath)) {
+      fs.renameSync(nodeJsPath, path.join(srcDir, `${config.node_name}.js`));
+    }
+    if (fs.existsSync(nodeHtmlPath)) {
+      fs.renameSync(nodeHtmlPath, path.join(srcDir, `${config.node_name}.html`));
+    }
+  }
+
+  // Update file contents
+  updateFiles(projectDir, config);
+
+  // Update package.json specifically
   const packageJsonPath = path.join(projectDir, 'package.json');
   const projectPackageJson = require(packageJsonPath);
   projectPackageJson.name = config.project_name;
-  projectPackageJson.version = '1.0.0';
-  projectPackageJson.description = config.project_description;
+  projectPackageJson.author = config.author_name;
   projectPackageJson.license = config.license;
-  
-  // Update author information
-  if (config.author_name || config.author_email) {
-    const authorString = config.author_email 
-      ? `${config.author_name} <${config.author_email}>`
-      : config.author_name;
-    projectPackageJson.author = authorString;
+
+  // Ensure the node-red section points to the correct file
+  if (projectPackageJson['node-red'] && projectPackageJson['node-red'].nodes) {
+    // Reconstruct the nodes object with the new key and value
+    projectPackageJson['node-red'].nodes = {};
+    projectPackageJson['node-red'].nodes[config.node_name] = `src/${config.node_name}.js`;
   }
-  
-  // Update repository information
-  if (config.github_username) {
-    const repoUrl = `https://github.com/${config.github_username}/${config.project_name}.git`;
-    projectPackageJson.repository = {
-      type: 'git',
-      url: repoUrl
-    };
-    projectPackageJson.bugs = {
-      url: `https://github.com/${config.github_username}/${config.project_name}/issues`
-    };
-    projectPackageJson.homepage = `https://github.com/${config.github_username}/${config.project_name}#readme`;
-  }
-  
-  // Remove bin field from the generated project
-  delete projectPackageJson.bin;
-  
-  fs.writeFileSync(
-    packageJsonPath,
-    JSON.stringify(projectPackageJson, null, 2)
-  );
+
+  fs.writeFileSync(packageJsonPath, JSON.stringify(projectPackageJson, null, 2));
 
   console.log('\n📦 Installing dependencies...');
-  
-  // Run `npm install` in the project directory
+
   const installResult = spawn.sync('npm', ['install'], {
     cwd: projectDir,
     stdio: 'inherit'
@@ -225,16 +275,11 @@ async function createProject() {
     process.exit(1);
   }
 
-  console.log('\n✨ Success! Your new Pochade-JS project is ready.');
-  console.log(`\n📁 Created ${projectName} at ${projectDir}`);
-  console.log('\n📚 Inside that directory, you can run several commands:');
-  console.log('\n  npm start');
-  console.log('    Starts the development server.');
-  console.log('\n  npm run build');
-  console.log('    Builds the app for production.');
-  console.log('\n💡 We suggest that you begin by typing:');
-  console.log(`\n  cd ${projectName}`);
-  console.log('  npm start');
+  console.log('\n✨ Success!');
+  console.log(`\nTo get started:\n`);
+  console.log(`  cd ${projectName}`);
+  console.log(`  npm run install-plugin  # Installs this node to your local Node-RED`);
+  console.log(`  npm run watch           # Develop with auto-restart`);
   console.log('\n🎨 Happy coding!');
 }
 
