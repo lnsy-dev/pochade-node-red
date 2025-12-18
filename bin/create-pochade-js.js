@@ -1,13 +1,13 @@
 #!/usr/bin/env node
 
 /**
- * create-pochade-js
+ * pochade-node-red
  * 
- * Creates a new Pochade-JS Node-RED project from the template.
+ * Creates a new Pochade Node-RED project from the template.
  * 
- * Usage: npx create-pochade-js my-app
+ * Usage: npx pochade-node-red my-node
  * 
- * @module create-pochade-js
+ * @module pochade-node-red
  */
 
 const spawn = require('cross-spawn');
@@ -171,7 +171,7 @@ function updateFiles(dir, config) {
 }
 
 /**
- * Main function to create a new Pochade-JS project
+ * Main function to create a new Pochade Node-RED project
  * 
  * @returns {Promise<void>}
  */

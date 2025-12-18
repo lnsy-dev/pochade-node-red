@@ -1,9 +1,9 @@
 {
   "name": "pochade-node-red",
   "version": "0.1.0",
-  "description": "npx starter for node-red plugins with auto install functionality",
+  "description": "A lightweight generator for Node-RED nodes and plugins.",
   "bin": {
-    "create-pochade-js": "./bin/create-pochade-js.js"
+    "pochade-node-red": "./bin/create-pochade-js.js"
   },
   "repository": {
     "type": "git",
@@ -24,7 +24,6 @@
     "url": "https://github.com/lnsy-dev/pochade-node-red/issues"
   },
   "homepage": "https://github.com/lnsy-dev/pochade-node-red#readme",
-
   "dependencies": {
     "cross-spawn": "^7.0.6"
   },
