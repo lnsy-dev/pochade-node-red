@@ -21,6 +21,19 @@ After installing and restarting Node-RED, you will find the **${node_name}** nod
 
 Drag the node onto the canvas and configure it.
 
+
+### Watch Mode
+
+If you are making frequent changes, you can use:
+
+```sh
+npm run watch
+```
+
+This will start node-red and on every text change will re-install the plugin to the ~/.node-red node_modules directory and restart node-red. 
+
+
+
 ## License
 
 ${license}
