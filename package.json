@@ -1,16 +1,16 @@
 {
-  "name": "pochade-js",
-  "version": "0.7.2",
-  "description": "npx starter template for Pochade-JS projects",
+  "name": "pochade-node-red",
+  "version": "0.1.0",
+  "description": "npx starter for node-red plugins with auto install functionality",
   "bin": {
     "create-pochade-js": "./bin/create-pochade-js.js"
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/lnsy-dev/pochade-js.git"
+    "url": "git+https://github.com/lnsy-dev/pochade-node-red.git"
   },
   "keywords": [
-    "pochade",
+    "node-red",
     "template",
     "starter",
     "vanilla-js",
@@ -21,9 +21,9 @@
   "author": "LNSY",
   "license": "Unlicense",
   "bugs": {
-    "url": "https://github.com/lnsy-dev/pochade-js/issues"
+    "url": "https://github.com/lnsy-dev/pochade-node-red/issues"
   },
-  "homepage": "https://github.com/lnsy-dev/pochade-js#readme",
+  "homepage": "https://github.com/lnsy-dev/pochade-node-red#readme",
 
   "dependencies": {
     "cross-spawn": "^7.0.6"
