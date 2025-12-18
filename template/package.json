@@ -15,8 +15,9 @@
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "install-plugin": "SRC=$PWD && echo \"Installing from $SRC\" && test -d $HOME/.node-red && (cd $HOME/.node-red && npm install $SRC) || (echo 'Error: $HOME/.node-red not found. Please initialize Node-RED first.' && exit 1)",
-    "watch": "nodemon -e js,html --exec \"npm run install-plugin && npm run restart-node-red\"",
-    "restart-node-red": "pkill -f 'node-red -u' || true && node-red -u $HOME/.node-red"
+    "watch": "nodemon --watch src -e js,html --exec \"npm run install-plugin && npm run restart-node-red\"",
+    "start-node-red": "node-red -u $HOME/.node-red",
+    "restart-node-red": "pkill -f 'node-red' || true && sleep 2 && node-red -u $HOME/.node-red"
   },
   "devDependencies": {
     "nodemon": "^2.0.22"
