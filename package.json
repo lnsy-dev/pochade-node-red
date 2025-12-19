@@ -1,6 +1,6 @@
 {
   "name": "pochade-node-red",
-  "version": "0.1.2",
+  "version": "0.1.4",
   "description": "A lightweight generator for Node-RED nodes and plugins.",
   "bin": {
     "pochade-node-red": "./bin/create-pochade-js.js"
