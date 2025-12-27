@@ -1,7 +1,9 @@
 # Node-RED Plugin Implementation Guide for AI Agents
 
 This document provides a comprehensive guide for Large Language Models (LLMs) on how to implement Node-RED plugins (nodes).
+## Priorities
 
+Every node should have extensive documentation describing its functionality. 
 ## Project Structure
 
 A Node-RED node module typically has the following structure:
@@ -135,6 +137,27 @@ The HTML file defines the node's appearance in the Node-RED editor, its configur
 
 ## Development Cycle
 
-1.  **Install**: `npm install` in your node directory.
-2.  **Link**: `npm link` (or `npm install . -g`) to make it available to Node-RED.
-3.  **Restart**: Restart Node-RED to load changes.
+1.  **Install**: `npm run install-plugin` in your node directory.
+2.  **Link**: `npm run watch` to make it available to Node-RED.
+3.  **Restart**: the watch.sh script automatically restarts node-red when there is a change in thenode
+
+## Scripts
+
+This project has two npm commands that are helpful for development:
+
+```sh
+npm run install-plugin
+```
+
+installs th enode-red plugin in the user's .node-red directory
+
+```sh
+npm run watch
+```
+
+triggers the `watch.sh` script, watches for changes and cycles the node-red server on and off when there are changes. 
+
+
+## Documentation
+
+Please make sure to extensively document the plugin, including comments in the javascript and also in the plugin's HTML component. Please update documentation at the end of every change. Please be sure to detail all inputs, outputs and messages. Please use examples of what the input should look like and what the output will look like. 
